@@ -1,0 +1,15 @@
+<Project>
+    <ItemGroup>
+        <!-- Ranges that don't specify a single version are kept as is -->
+        <PackageVersion Include="ExactLowerBound" Version="[8.0.32,9)" />
+        <PackageVersion Include="MinimumVersion" Version="[1.0,)" />
+        <PackageVersion Include="MaximumVersion" Version="(,2.0]" />
+        <PackageVersion Include="VersionInterval" Version="(1.0,2.0)" />
+        <PackageVersion Include="EmptyRange" Version="(1.0,1.0)" />
+        <!-- Malformed values and unresolved variables are kept as is too -->
+        <PackageVersion Include="EmptyBrackets" Version="[]" />
+        <PackageVersion Include="UnclosedBracket" Version="[1.0" />
+        <PackageVersion Include="Variable" Version="[$(Version)]" />
+        <PackageVersion Include="PlainVersion" Version="3.1.4" />
+    </ItemGroup>
+</Project>

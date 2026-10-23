@@ -1,0 +1,47 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      my-mkdirp:
+        specifier: npm:mkdirp@0.5.1
+        version: mkdirp@0.5.1
+      repro-shared:
+        specifier: repro-shared@file:///home/user/repro/packages/shared
+        version: repro-shared@file:///home/user/repro/packages/shared
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+packages:
+
+  '@xmldom/xmldom@0.8.13':
+    resolution: {integrity: sha512-JkZ2TfYUsKQmBmYVtRn1eSSFDTThTtMbmqusPtJXJyU8AVTPXGSlygZ3sE1P/VBqhrJcGvkZDN9sdGmf1WzTdJw==}
+
+  mkdirp@0.5.1:
+    resolution: {integrity: sha512-SKnJC52obPfGQPknI1Hs7NqNgm2qetCX5TRpaMBbeXFoKtXOCjJdb0TtIjHnQTXjJ0/V1z6k8BM/q0Zy1iNKuCg==}
+
+  repro-shared@file:///home/user/repro/packages/shared:
+    resolution: {directory: /home/user/repro/packages/shared, type: directory}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    hasBin: true
+
+snapshots:
+
+  '@xmldom/xmldom@0.8.13': {}
+
+  mkdirp@0.5.1: {}
+
+  repro-shared@file:///home/user/repro/packages/shared:
+    dependencies:
+      '@xmldom/xmldom': 0.8.13
+
+  typescript@5.9.3: {}

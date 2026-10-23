@@ -1123,4 +1123,90 @@ var (
 		},
 	}
 	pnpmV9MultiVersionDeps = []ftypes.Dependency{}
+
+	// pnpmV9Alias covers direct dependencies whose version is written in the alias form
+	// `<name>@<version>`, e.g. npm aliases (`"my-mkdirp": "npm:mkdirp@0.5.1"`) and workspace
+	// packages injected by `pnpm deploy`. "snapshots" are keyed by the aliased name, so these
+	// dependencies must be resolved to it; otherwise they are reported as indirect dev
+	// dependencies and their production subtree is marked as dev as well.
+	//
+	// docker run --rm node@sha256:b46a10d964ad15136ebdf9012142131481caa0697d7a4d4eafe4bbabd818f876 sh -c '
+	// npm install -g pnpm@11.9.0
+	// mkdir -p /app/packages/shared && cd /app
+	// cat > pnpm-workspace.yaml <<EOF
+	// packages:
+	// - packages/shared
+	// EOF
+	// (cd packages/shared && pnpm init && pnpm add @xmldom/xmldom@0.8.13)
+	// pnpm init && pnpm add my-mkdirp@npm:mkdirp@0.5.1
+	// pnpm --config.inject-workspace-packages=true deploy --prod /tmp/deploy && cat pnpm-lock.yaml'
+	pnpmV9Alias = []ftypes.Package{
+		{
+			ID:           "mkdirp@0.5.1",
+			Name:         "mkdirp",
+			Version:      "0.5.1",
+			Relationship: ftypes.RelationshipDirect,
+		},
+		{
+			ID:           "repro-shared@file:///home/user/repro/packages/shared",
+			Name:         "repro-shared",
+			Relationship: ftypes.RelationshipDirect,
+		},
+		{
+			ID:           "typescript@5.9.3",
+			Name:         "typescript",
+			Version:      "5.9.3",
+			Dev:          true,
+			Relationship: ftypes.RelationshipDirect,
+		},
+		{
+			ID:           "@xmldom/xmldom@0.8.13",
+			Name:         "@xmldom/xmldom",
+			Version:      "0.8.13",
+			Relationship: ftypes.RelationshipIndirect,
+		},
+	}
+	pnpmV9AliasDeps = []ftypes.Dependency{
+		{
+			ID:        "repro-shared@file:///home/user/repro/packages/shared",
+			DependsOn: []string{"@xmldom/xmldom@0.8.13"},
+		},
+	}
+
+	// pnpmV9Optional covers optional dependencies declared in the "importers" section.
+	// `pnpm install --prod` installs them, so unlike dev dependencies they are production
+	// dependencies and their dependencies must not be marked as dev either.
+	pnpmV9Optional = []ftypes.Package{
+		{
+			ID:           "debug@4.3.5",
+			Name:         "debug",
+			Version:      "4.3.5",
+			Relationship: ftypes.RelationshipDirect,
+		},
+		{
+			ID:           "lodash@4.17.20",
+			Name:         "lodash",
+			Version:      "4.17.20",
+			Relationship: ftypes.RelationshipDirect,
+		},
+		{
+			ID:           "ms@2.1.3",
+			Name:         "ms",
+			Version:      "2.1.3",
+			Relationship: ftypes.RelationshipIndirect,
+		},
+		{
+			ID:           "typescript@5.9.3",
+			Name:         "typescript",
+			Version:      "5.9.3",
+			Dev:          true,
+			Relationship: ftypes.RelationshipDirect,
+		},
+	}
+	pnpmV9OptionalDeps = []ftypes.Dependency{
+		{
+			ID:        "debug@4.3.5",
+			DependsOn: []string{"ms@2.1.3"},
+		},
+	}
 )

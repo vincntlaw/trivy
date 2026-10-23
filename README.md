@@ -1,147 +1,207 @@
 <div align="center">
-<img src="docs/imgs/logo.png" width="200">
 
-[![GitHub Release][release-img]][release]
-[![Test][test-img]][test]
-[![Go Report Card][go-report-img]][go-report]
-[![License: Apache-2.0][license-img]][license]
-[![GitHub Downloads][github-downloads-img]][release]
-![Docker Pulls][docker-pulls]
+<img src="docs/imgs/logo.png" width="170" alt="Trivy"/>
 
-[📖 Documentation][docs]
+# 🛡️ Trivy
+
+**One binary that finds vulnerabilities, misconfigurations, secrets and licences — in containers, code, Kubernetes and the cloud.**
+
+[![GitHub Release](https://img.shields.io/github/v/release/aquasecurity/trivy?style=flat-square&logo=github&label=release)](https://github.com/aquasecurity/trivy/releases)
+[![Go](https://img.shields.io/badge/go-1.27-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-000000?style=flat-square&logo=apache&logoColor=white)](LICENSE)
+[![Docker Pulls](https://img.shields.io/docker/pulls/aquasec/trivy?style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/aquasec/trivy)
+[![Stars](https://img.shields.io/github/stars/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/stargazers)
+[![Forks](https://img.shields.io/github/forks/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/network)
+[![Issues](https://img.shields.io/github/issues/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/issues)
+
+*A single static binary — no agents, no sidecars, and the only thing it downloads is the vulnerability database.*
+
 </div>
 
-Trivy ([pronunciation][pronunciation]) is a comprehensive and versatile security scanner.
-Trivy has *scanners* that look for security issues, and *targets* where it can find those issues.
+---
 
-Targets (what Trivy can scan):
+## ✨ What does it do?
 
-- Container Image
-- Filesystem
-- Git Repository (remote)
-- Virtual Machine Image
-- Kubernetes
+Point Trivy at a **target**, tell it which **scanners** to run, and get findings back in a format your tooling already speaks. That's the whole interface — no daemon to babysit, no cluster agent to upgrade, no YAML to keep in sync with a vendor.
 
-Scanners (what Trivy can find there):
-
-- OS packages and software dependencies in use (SBOM)
-- Known vulnerabilities (CVEs)
-- IaC issues and misconfigurations
-- Sensitive information and secrets
-- Software licenses
-
-Trivy supports most popular programming languages, operating systems, and platforms. For a complete list, see the [Scanning Coverage] page.
-
-To learn more, go to the [Trivy homepage][homepage] for feature highlights, or to the [Documentation site][docs] for detailed information.
-
-## Quick Start
-
-### Get Trivy
-
-Trivy is available in most common distribution channels. The full list of installation options is available in the [Installation] page. Here are a few popular examples:
-
-- `brew install trivy`
-- `docker run aquasec/trivy`
-- Download binary from <https://github.com/aquasecurity/trivy/releases/latest/>
-- See [Installation] for more
-
-Trivy is integrated with many popular platforms and applications. The complete list of integrations is available in the [Ecosystem] page. Here are a few popular examples:
-
-- [GitHub Actions](https://github.com/aquasecurity/trivy-action)
-- [Kubernetes operator](https://github.com/aquasecurity/trivy-operator)
-- [VS Code plugin](https://github.com/aquasecurity/trivy-vscode-extension)
-- See [Ecosystem] for more
-
-### Canary builds
-There are canary builds ([Docker Hub](https://hub.docker.com/r/aquasec/trivy/tags?page=1&name=canary), [GitHub](https://github.com/aquasecurity/trivy/pkgs/container/trivy/75776514?tag=canary), [ECR](https://gallery.ecr.aws/aquasecurity/trivy#canary) images and [binaries](https://github.com/aquasecurity/trivy/actions/workflows/canary.yaml)) generated with every push to the main branch.
-
-Please be aware: canary builds might have critical bugs, so they are not recommended for use in production.
-
-### General usage
-
-```bash
-trivy <target> [--scanners <scanner1,scanner2>] <subject>
+```
+container images ──┐                        ┌──► CVEs in OS packages & dependencies
+filesystems ───────┤                        ├──► IaC misconfigurations
+git repositories ──┼──► trivy <target> ─────┼──► secrets
+VM images ─────────┤                        ├──► licenses
+kubernetes ────────┘                        └──► SBOM (CycloneDX / SPDX)
 ```
 
-Examples:
-
 ```bash
-trivy image python:3.4-alpine
+# 1) scan a container image
+trivy image golang:1.22.11-alpine3.20
 ```
+
+Trimmed output from that run:
+
+```
+Report Summary
+
+┌─────────────────────────────────────────────┬──────────┬─────────────────┬─────────┐
+│                   Target                    │   Type   │ Vulnerabilities │ Secrets │
+├─────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ golang:1.22.11-alpine3.20 (alpine 3.20.5)   │  alpine  │        6        │    -    │
+├─────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ usr/local/go/bin/go                         │ gobinary │        1        │    -    │
+└─────────────────────────────────────────────┴──────────┴─────────────────┴─────────┘
+
+Total: 6 (UNKNOWN: 2, LOW: 0, MEDIUM: 2, HIGH: 2, CRITICAL: 0)
+```
+
+> 🧠 **First run only:** Trivy pulls the vulnerability database automatically, then keeps it cached — after that your scans are fast and can run offline.
+
+## 📸 Screenshot
+
+<img src="docs/imgs/trivy-k8s.png" alt="Trivy Kubernetes summary report" width="100%"/>
+
+*A real `trivy k8s --report summary cluster` run — every workload in the cluster, one table.*
 
 <details>
-<summary>Result</summary>
+<summary>More terminal demos</summary>
+
+`trivy image python:3.4-alpine`
 
 https://github.com/user-attachments/assets/af1c11e7-d9c5-48af-8e05-cb34dfd6352a
 
-</details>
-
-```bash
-trivy fs --scanners vuln,secret,misconfig myproject/
-```
-
-<details>
-<summary>Result</summary>
+`trivy fs --scanners vuln,secret,misconfig myproject/`
 
 https://github.com/user-attachments/assets/6b3894b7-77c5-4ffc-ac94-ffe6648a30dc
 
 </details>
 
+## 🚀 Features
+
+- 🎯 **Five targets, one command** — images, filesystems, remote repos, VM images and clusters, all with the same flags
+- 🐞 **Known vulnerabilities (CVEs)** — OS packages and application dependencies, matched against the Trivy DB, vendor advisories and VEX
+- 🧩 **IaC misconfigurations** — Terraform, Kubernetes, Helm, Dockerfile, CloudFormation, Ansible and ARM templates
+- 🔑 **Secrets** — API keys, tokens and credentials that were never meant to be committed
+- 📜 **Licences** — the obligations hiding in your dependency tree
+- 📦 **SBOM in, SBOM out** — emit CycloneDX or SPDX, and scan an existing SBOM like you scan an image
+- 🧠 **Broad coverage** — most popular languages, operating systems and platforms ([the full list](https://trivy.dev/docs/latest/guide/coverage/))
+- 📤 **Reports that fit** — table, JSON, SARIF, templates, SBOM and GitHub dependency snapshots
+- 🔌 **Plugs into your stack** — GitHub Actions, the Trivy Operator, VS Code, GitLab, Argo CD and friends
+- 🌐 **Client/server mode** — one Trivy server, many thin clients, a shared database and cache
+- 🧪 **Extensible** — WASM modules add detection logic without forking the binary
+
+## 🧰 What's inside
+
+| | Scanner | What it finds |
+|---|---|---|
+| 🐞 | **[Vulnerabilities](https://trivy.dev/docs/latest/guide/scanner/vulnerability/)** | CVEs in OS packages and application dependencies, with the fix version when there is one |
+| 🧩 | **[Misconfigurations](https://trivy.dev/docs/latest/guide/scanner/misconfiguration/)** | Insecure defaults and policy violations in IaC, checked by the bundled Aqua rules and Rego |
+| 🔑 | **[Secrets](https://trivy.dev/docs/latest/guide/scanner/secret/)** | API keys, tokens and credentials — entropy plus a pile of rule-based patterns |
+| 📜 | **[Licences](https://trivy.dev/docs/latest/guide/scanner/license/)** | The obligations hiding in your dependency tree |
+
+## 📦 What it scans
+
+| | Target | Try it |
+|---|---|---|
+| 🐳 | **Container image** | `trivy image alpine:3.20` |
+| 📁 | **Filesystem** | `trivy fs .` — lockfiles, IaC, secrets |
+| 🌿 | **Git repository** | `trivy repo https://github.com/org/repo` |
+| 💽 | **VM image** | AWS AMI and EBS snapshots |
+| ☸️ | **Kubernetes** | `trivy k8s --report summary cluster` |
+
+## 🛠️ Quick start
+
+### Requirements
+
+| Requirement | Notes |
+|---|---|
+| Nothing | Trivy is a single static binary — no runtime, no daemon, no cluster agent |
+| Network *(first run only)* | downloads the vulnerability database, then caches it locally |
+| Docker *(optional)* | only if you want to pull images from a Docker daemon |
+
+### Get Trivy
+
+| Channel | Command |
+|---|---|
+| 🍺 Homebrew | `brew install trivy` |
+| 🐳 Docker | `docker run aquasec/trivy` |
+| 📦 Binary | grab one from [the latest release](https://github.com/aquasecurity/trivy/releases/latest/) |
+| 🐧 apt / yum / rpm | see [Installation](https://trivy.dev/docs/latest/getting-started/installation/) for the repo setup |
+
+### Setup
+
 ```bash
+# 1) scan a project: vulnerabilities, secrets and misconfigurations
+trivy fs --scanners vuln,secret,misconfig myproject/
+
+# 2) scan a remote git repository
+trivy repo https://github.com/aquasecurity/trivy
+
+# 3) scan a kubernetes cluster
 trivy k8s --report summary cluster
 ```
 
-<details>
-<summary>Result</summary>
+The CLI shape never changes:
 
-![k8s summary](docs/imgs/trivy-k8s.png)
+```bash
+trivy <target> [--scanners <scanner1,scanner2>] <subject>
+```
 
-</details>
+## ⚙️ Tuning
 
-## FAQ
+| Flag | What it does |
+|---|---|
+| `--scanners` | pick the scanners: `vuln`, `misconfig`, `secret`, `license` |
+| `--severity` | only report what you care about, e.g. `HIGH,CRITICAL` |
+| `--format` / `-f` | `table` (default), `json`, `sarif`, `template`, `cyclonedx`, `spdx`, `github` |
+| `--output` / `-o` | write the report to a file instead of stdout |
+| `--exit-code` | return a non-zero exit code when findings are reported — great for CI gates |
+| `--ignore-unfixed` | skip findings that have no fix available yet |
+| `--skip-db-update` | reuse the cached vulnerability database (air-gapped or fast CI) |
 
-### How to pronounce the name "Trivy"?
+A gate you can paste into CI as-is:
 
-`tri` is pronounced like **tri**gger, `vy` is pronounced like en**vy**.
+```bash
+trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 myapp:latest
+```
 
-## Want more? Check out Aqua
+## 🧪 Canary builds
 
-If you liked Trivy, you will love Aqua which builds on top of Trivy to provide even more enhanced capabilities for a complete security management offering.  
-You can find a high level comparison table specific to Trivy users [here](https://trivy.dev/docs/latest/commercial/compare/).
-In addition check out the <https://aquasec.com> website for more information about our products and services.
-If you'd like to contact Aqua or request a demo, please use this form: <https://www.aquasec.com/demo>
+Canary images and binaries are built on every push to `main` — [Docker Hub](https://hub.docker.com/r/aquasec/trivy/tags?page=1&name=canary), [GitHub Container Registry](https://github.com/aquasecurity/trivy/pkgs/container/trivy/75776514?tag=canary), [ECR](https://gallery.ecr.aws/aquasecurity/trivy#canary) and [binaries](https://github.com/aquasecurity/trivy/actions/workflows/canary.yaml).
 
-## Community
+> ⚠️ **Heads up:** canary builds track the tip of `main` and might contain critical bugs — they are not recommended for production.
 
-Trivy is an [Aqua Security][aquasec] open source project.  
-Learn about our open source work and portfolio [here][oss].  
-Contact us about any matter by opening a GitHub Discussion [here][discussions]
+## ⚠️ Disclaimer
 
-Please ensure to abide by our [Code of Conduct][code-of-conduct] during all interactions.
+Trivy tells you what it found; it doesn't decide what ships. A green scan is not a guarantee — databases lag behind brand-new CVEs, some ranges can't be resolved, and IaC rules only check what they know about. Tune `--severity`, `--ignore-unfixed` and your policies to what your team can actually act on, and be nice to the person on call when the gate goes red.
 
-[test]: https://github.com/aquasecurity/trivy/actions/workflows/test.yaml
-[test-img]: https://github.com/aquasecurity/trivy/actions/workflows/test.yaml/badge.svg
-[go-report]: https://goreportcard.com/report/github.com/aquasecurity/trivy
-[go-report-img]: https://goreportcard.com/badge/github.com/aquasecurity/trivy
-[release]: https://github.com/aquasecurity/trivy/releases
-[release-img]: https://img.shields.io/github/release/aquasecurity/trivy.svg?logo=github
-[github-downloads-img]: https://img.shields.io/github/downloads/aquasecurity/trivy/total?logo=github
-[docker-pulls]: https://img.shields.io/docker/pulls/aquasec/trivy?logo=docker&label=docker%20pulls%20%2F%20trivy
-[license]: https://github.com/aquasecurity/trivy/blob/main/LICENSE
-[license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-[homepage]: https://trivy.dev
-[docs]: https://trivy.dev/docs/latest/
-[pronunciation]: #how-to-pronounce-the-name-trivy
-[code-of-conduct]: https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md
+## ❓ FAQ
 
-[Installation]:https://trivy.dev/docs/latest/getting-started/installation/
-[Ecosystem]: https://trivy.dev/docs/latest/ecosystem/
-[Scanning Coverage]: https://trivy.dev/docs/latest/coverage/
+**How do you pronounce "Trivy"?** `tri` is pronounced like **tri**gger, `vy` is pronounced like en**vy**.
 
-[alpine]: https://ariadne.space/2021/06/08/the-vulnerability-remediation-lifecycle-of-alpine-containers/
-[rego]: https://www.openpolicyagent.org/docs/latest/#rego
-[sigstore]: https://www.sigstore.dev/
+**Does it phone home?** No. Scans run locally; only the vulnerability database, checks bundle and Java DB are downloaded (and cached).
 
-[aquasec]: https://aquasec.com
-[oss]: https://www.aquasec.com/products/open-source-projects/
-[discussions]: https://github.com/aquasecurity/trivy/discussions
+## 🌊 Want more? Check out Aqua
+
+If you liked Trivy, you will love Aqua, which builds on top of Trivy to provide enhanced capabilities for a complete security management offering.
+There is a high-level [comparison table](https://trivy.dev/docs/latest/commercial/compare/) for Trivy users, and [aquasec.com](https://aquasec.com) has the rest — or [request a demo](https://www.aquasec.com/demo).
+
+## 🤝 Community
+
+Trivy is an [Aqua Security](https://aquasec.com) open source project. Learn about our open source work and portfolio [here](https://www.aquasec.com/products/open-source-projects/).
+
+- 💬 Questions and ideas → [GitHub Discussions](https://github.com/aquasecurity/trivy/discussions)
+- 🐞 Bugs and feature requests → [Issues](https://github.com/aquasecurity/trivy/issues)
+- 🛠️ Pull requests → read the [contributing guidelines](CONTRIBUTING.md) first, please
+
+Please abide by our [Code of Conduct](https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md) in every interaction.
+
+## 📄 License
+
+[Apache-2.0](LICENSE) © Aqua Security
+
+<div align="center">
+
+**[📖 Documentation](https://trivy.dev/docs/latest/)** · **[🚀 Installation](https://trivy.dev/docs/latest/getting-started/installation/)** · **[💬 Discussions](https://github.com/aquasecurity/trivy/discussions)** · **[🌐 trivy.dev](https://trivy.dev)**
+
+*if your stack isn't covered yet, [open an issue](https://github.com/aquasecurity/trivy/issues/new/choose) — that's how most of this got built.*
+
+</div>

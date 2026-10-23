@@ -142,11 +142,16 @@ func (p *Parser) parseV9(lockFile LockFile) ([]ftypes.Package, []ftypes.Dependen
 	directDevDeps := set.New[string]()  // packageIDs of direct dev dependencies
 	directProdDeps := set.New[string]() // packageIDs of direct production dependencies
 	for _, importer := range lockFile.Importers {
-		for n, v := range importer.DevDependencies {
-			directDevDeps.Append(packageID(n, p.trimPeerDeps(v.Version, lockVer)))
+		for name, dep := range importer.DevDependencies {
+			directDevDeps.Append(p.importerPkgID(name, dep.Version, lockVer))
 		}
-		for n, v := range importer.Dependencies {
-			directProdDeps.Append(packageID(n, p.trimPeerDeps(v.Version, lockVer)))
+		for name, dep := range importer.Dependencies {
+			directProdDeps.Append(p.importerPkgID(name, dep.Version, lockVer))
+		}
+		// Optional dependencies are installed in production, so they are production dependencies,
+		// unlike dev dependencies, which `pnpm install --prod` skips.
+		for name, dep := range importer.OptionalDependencies {
+			directProdDeps.Append(p.importerPkgID(name, dep.Version, lockVer))
 		}
 	}
 
@@ -254,6 +259,47 @@ func (p *Parser) markRootPkgs(id SnapshotKey, pkgs map[SnapshotKey]ftypes.Packag
 	for _, depID := range deps[id].DependsOn {
 		p.markRootPkgs(SnapshotKey(depID), pkgs, deps, visited)
 	}
+}
+
+// importerPkgID returns the package ID of a dependency declared in the "importers" section.
+// The version may be written in the alias form `<name>@<version>`. It is the case for npm aliases
+// (e.g. `"my-mkdirp": "npm:mkdirp@0.5.1"`) and for workspace packages injected by `pnpm deploy`
+// (e.g. `repro-shared@file:///path/to/packages/shared`). `snapshots` and `packages` are keyed by
+// the aliased name, so the alias must be resolved to match the installed package.
+func (p *Parser) importerPkgID(name, ver string, lockVer float64) string {
+	ver = p.trimPeerDeps(ver, lockVer)
+	if aliasName, aliasVer, ok := splitAlias(ver); ok {
+		return packageID(aliasName, aliasVer)
+	}
+	return packageID(name, ver)
+}
+
+// splitAlias splits the alias form `<name>@<version>` into the aliased name and version.
+// Versions that merely contain `@`, e.g. `git+ssh://git@github.com/user/repo`, are not aliases.
+func splitAlias(ver string) (string, string, bool) {
+	start := 0
+	if strings.HasPrefix(ver, "@") {
+		// Skip the leading `@` of a scoped package name.
+		start = 1
+	}
+	idx := strings.Index(ver[start:], "@")
+	if idx < 0 {
+		return "", "", false
+	}
+	name, aliasVer := ver[:idx+start], ver[idx+start+1:]
+	if aliasVer == "" || !isPkgName(name) {
+		return "", "", false
+	}
+	return name, aliasVer, true
+}
+
+// isPkgName reports whether the string looks like an npm package name, e.g. `lodash` or `@babel/core`.
+func isPkgName(s string) bool {
+	if scope, ok := strings.CutPrefix(s, "@"); ok {
+		scope, name, ok := strings.Cut(scope, "/")
+		return ok && scope != "" && name != "" && !strings.Contains(name, "/")
+	}
+	return s != "" && !strings.ContainsAny(s, "/:@")
 }
 
 func (p *Parser) parseLockfileVersion(lockFile LockFile) float64 {
