@@ -13,6 +13,7 @@
 [![Stars](https://img.shields.io/github/stars/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/stargazers)
 [![Forks](https://img.shields.io/github/forks/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/network)
 [![Issues](https://img.shields.io/github/issues/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/issues)
+[![Discord](https://img.shields.io/badge/Discord-loveqcn-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.com/users/283333002749018113)
 
 *A single static binary — no agents, no sidecars, and the only thing it downloads is the vulnerability database.*
 
@@ -200,7 +201,7 @@ Please abide by our [Code of Conduct](https://github.com/aquasecurity/community/
 
 <div align="center">
 
-**[📖 Documentation](https://trivy.dev/docs/latest/)** · **[🚀 Installation](https://trivy.dev/docs/latest/getting-started/installation/)** · **[💬 Discussions](https://github.com/aquasecurity/trivy/discussions)** · **[🌐 trivy.dev](https://trivy.dev)**
+**[📖 Documentation](https://trivy.dev/docs/latest/)** · **[🚀 Installation](https://trivy.dev/docs/latest/getting-started/installation/)** · **[💬 Discord](https://discord.com/users/283333002749018113)** · **[🗣️ Discussions](https://github.com/aquasecurity/trivy/discussions)** · **[🌐 trivy.dev](https://trivy.dev)**
 
 *if your stack isn't covered yet, [open an issue](https://github.com/aquasecurity/trivy/issues/new/choose) — that's how most of this got built.*
 
