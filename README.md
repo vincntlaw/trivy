@@ -14,6 +14,8 @@
 [![Forks](https://img.shields.io/github/forks/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/network)
 [![Issues](https://img.shields.io/github/issues/aquasecurity/trivy?style=flat-square&logo=github)](https://github.com/aquasecurity/trivy/issues)
 
+*A single static binary — no agents, no sidecars, and the only thing it downloads is the vulnerability database.*
+
 </div>
 
 ---
@@ -97,6 +99,14 @@ https://github.com/user-attachments/assets/6b3894b7-77c5-4ffc-ac94-ffe6648a30dc
 | ☸️ | **Kubernetes** | `trivy k8s --report summary cluster` |
 
 ## 🛠️ Quick start
+
+### Requirements
+
+| Requirement | Notes |
+|---|---|
+| Nothing | Trivy is a single static binary — no runtime, no daemon, no cluster agent |
+| Network (first run only) | downloads the vulnerability database, then caches it locally |
+| Docker *(optional)* | only if you want to scan images from a Docker daemon |
 
 ### Get Trivy
 
