@@ -7,5 +7,8 @@
     <PackageReference WrongAttribute="Package1" Version="3.2.1" />
     <WrongEntry Update="Package2" Version="3.2.1" />
     <PackageReference Update="Package3" />
+    <PackageVersion Include="ExactVersion" Version="[4.7.0]" />
+    <PackageVersion Include="ExactVersionWithSpaces" Version="[ 1.2.3 ]" />
+    <PackageVersion Include="ExactVersionWithEqualBounds" Version="[2.0.0,2.0.0]" />
   </ItemGroup>
 </Project>

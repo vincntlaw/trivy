@@ -22,9 +22,27 @@ func TestParse(t *testing.T) {
 			name:      "PackagesProps",
 			inputFile: "testdata/packages.props",
 			want: []ftypes.Package{
+				{Name: "ExactVersion", Version: "4.7.0", ID: "ExactVersion@4.7.0"},
+				{Name: "ExactVersionWithEqualBounds", Version: "2.0.0", ID: "ExactVersionWithEqualBounds@2.0.0"},
+				{Name: "ExactVersionWithSpaces", Version: "1.2.3", ID: "ExactVersionWithSpaces@1.2.3"},
 				{Name: "Microsoft.Extensions.Configuration", Version: "2.1.1", ID: "Microsoft.Extensions.Configuration@2.1.1"},
 				{Name: "Microsoft.Extensions.DependencyInjection.Abstractions", Version: "2.2.1", ID: "Microsoft.Extensions.DependencyInjection.Abstractions@2.2.1"},
 				{Name: "Microsoft.Extensions.Http", Version: "3.2.1", ID: "Microsoft.Extensions.Http@3.2.1"},
+			},
+		},
+		{
+			name:      "VersionRanges",
+			inputFile: "testdata/version_ranges.props",
+			want: []ftypes.Package{
+				{Name: "EmptyBrackets", Version: "[]", ID: "EmptyBrackets@[]"},
+				{Name: "EmptyRange", Version: "(1.0,1.0)", ID: "EmptyRange@(1.0,1.0)"},
+				{Name: "ExactLowerBound", Version: "[8.0.32,9)", ID: "ExactLowerBound@[8.0.32,9)"},
+				{Name: "MaximumVersion", Version: "(,2.0]", ID: "MaximumVersion@(,2.0]"},
+				{Name: "MinimumVersion", Version: "[1.0,)", ID: "MinimumVersion@[1.0,)"},
+				{Name: "PlainVersion", Version: "3.1.4", ID: "PlainVersion@3.1.4"},
+				{Name: "UnclosedBracket", Version: "[1.0", ID: "UnclosedBracket@[1.0"},
+				{Name: "Variable", Version: "[$(Version)]", ID: "Variable@[$(Version)]"},
+				{Name: "VersionInterval", Version: "(1.0,2.0)", ID: "VersionInterval@(1.0,2.0)"},
 			},
 		},
 		{
