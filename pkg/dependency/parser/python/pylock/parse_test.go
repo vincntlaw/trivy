@@ -79,6 +79,28 @@ func TestParser_Parse(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			// PEP 751 allows a dependency to omit the version when the name identifies
+			// a package unambiguously.
+			name: "name-only dependencies",
+			file: "testdata/name_only.toml",
+			wantPkgs: []ftypes.Package{
+				{ID: "alpha@1.0.0", Name: "alpha", Version: "1.0.0"},
+				{ID: "beta@2.0.0", Name: "beta", Version: "2.0.0"},
+				{ID: "delta@1.0.0", Name: "delta", Version: "1.0.0"},
+				{ID: "delta@2.0.0", Name: "delta", Version: "2.0.0"},
+				{ID: "epsilon@1.0.0", Name: "epsilon", Version: "1.0.0"},
+				{ID: "eta-pkg@4.0.0", Name: "eta-pkg", Version: "4.0.0"},
+				{ID: "eta-pkg@5.0.0", Name: "eta-pkg", Version: "5.0.0"},
+				{ID: "gamma@3.0.0", Name: "gamma", Version: "3.0.0"},
+			},
+			wantDeps: []ftypes.Dependency{
+				{ID: "alpha@1.0.0", DependsOn: []string{"beta@2.0.0"}},
+				{ID: "eta-pkg@4.0.0", DependsOn: []string{"beta@2.0.0"}},
+				{ID: "eta-pkg@5.0.0", DependsOn: []string{"beta@2.0.0"}},
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name:    "sad path",
 			file:    "testdata/sad.toml",
 			wantErr: assert.Error,

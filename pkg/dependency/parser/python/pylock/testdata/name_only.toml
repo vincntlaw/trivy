@@ -1,0 +1,45 @@
+lock-version = "1.0"
+created-by = "pex"
+
+# `version` is omitted because `beta` is unique in this lock file.
+[[packages]]
+name = "alpha"
+version = "1.0.0"
+dependencies = [{ name = "beta" }]
+
+[[packages]]
+name = "beta"
+version = "2.0.0"
+
+# `delta` is listed twice, so a name-only selector is ambiguous and must be ignored.
+[[packages]]
+name = "gamma"
+version = "3.0.0"
+dependencies = [{ name = "delta" }]
+
+[[packages]]
+name = "delta"
+version = "1.0.0"
+marker = "sys_platform == 'linux'"
+
+[[packages]]
+name = "delta"
+version = "2.0.0"
+marker = "sys_platform == 'win32'"
+
+# `zeta` is not listed as a package, so this dependency can't be resolved either.
+[[packages]]
+name = "epsilon"
+version = "1.0.0"
+dependencies = [{ name = "zeta" }]
+
+# The name is normalized before matching, and the version stays authoritative when set.
+[[packages]]
+name = "Eta_Pkg"
+version = "4.0.0"
+dependencies = [{ name = "beta", version = "2.0.0" }]
+
+[[packages]]
+name = "eta-pkg"
+version = "5.0.0"
+dependencies = [{ name = "Beta" }]
